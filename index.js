@@ -13,7 +13,7 @@ app.get('/', function(request, response) {
 
 app.get("/consultants", function(request, response) {
   Trello.retrieveConsultants(function(consultants) {
-    response.writeHead(200, {"Content-Type": "application/json", "Content-Encoding": "UTF-8"})
+    response.writeHead(200, {"Content-Type": "application/json; charset=utf-8", "Content-Encoding": "utf-8"})
     response.end(JSON.stringify(consultants));
   });
 });
