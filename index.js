@@ -11,7 +11,7 @@ app.get('/', function(request, response) {
   response.redirect("/public/index.html");
 });
 
-app.get("/consultants", function(request, response) {
+app.get("/consultants", function(request, response) {	
   Trello.retrieveConsultants(function(consultants) {
     response.writeHead(200, {"Content-Type": "application/json", "Content-Encoding": "UTF-8"})
     response.end(JSON.stringify(consultants));
