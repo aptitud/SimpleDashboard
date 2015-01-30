@@ -44,6 +44,8 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
             }
 
             trello.getMembers(memberReferences, function (members) {
+                var projectSpecs = [];
+
                 for (var i = 0; i < lists.length; i++) {
                     var list = lists[i];
                     var cards = cardsByList[list.id];
@@ -52,9 +54,24 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                         case "50372bbdec645cb1363eb7d5": /* På väg in */
                             break;
                         case "50372bbdec645cb1363eb7d4": /* Utan uppdrag */
+                            cards.forEach(function (card) {
+                                var name = card.name;
+                                var n = name.indexOf('-');
+                                var status = "UNKNOWN";
+
+                                if (n != -1) {
+                                    status = name.substring(n + 1).trim();
+                                    name = name.substring(0, n).trim();
+                                }
+
+                                projectSpecs.push({
+                                    name: name,
+                                    status: status,
+                                    projects: []
+                                });
+                            });
                             break;
                         case "54b39b033116e865c9a4a3f1": /* Pågående uppdrag */
-                            var projectSpecs = [];
 
                             cards.forEach(function (card) {
                                 var consultants = [];
@@ -68,19 +85,21 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
 
                                     projectSpecs.push({
                                         name: consultantName,
+                                        status: "Aktiv",
                                         projects: [{
                                             company: customerName,
+                                            startDate: null,
                                             endDate: (projectDescriptions[consultantName] ? projectDescriptions[consultantName].endDate : null)
                                         }]
                                     });
                                 });
                             });
 
-                            retrieveConsultansCallback(projectSpecs);
-
                             break;
                     }
                 }
+
+                retrieveConsultansCallback(projectSpecs);
             });
         });
     });
