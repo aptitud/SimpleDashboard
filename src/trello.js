@@ -66,7 +66,8 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
 
                                 projectSpecs.push({
                                     name: name,
-                                    status: status
+                                    status: status,
+                                    projects: []
                                 });
                             });
                             break;
@@ -84,6 +85,7 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
 
                                     projectSpecs.push({
                                         name: consultantName,
+                                        status: "Aktiv",
                                         projects: [{
                                             company: customerName,
                                             startDate: null,
