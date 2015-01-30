@@ -15,9 +15,20 @@ module.exports.parseProjectDuration = function (text) {
 
         if (n != -1) {
             var name = e.substring(0, n).trim();
-            var endDate = e.substring(n + 1).trim();
+            var dateSpec = e.substring(n + 1).trim();
+            var n = dateSpec.indexOf(" - ");
 
-            result[name] = {endDate: endDate};
+            var endDate = null;
+            var startDate = null;
+
+            if (n == -1) {
+                endDate = dateSpec;
+            } else {
+                startDate = dateSpec.substring(0, n).trim();
+                endDate = dateSpec.substring(n + 3).trim();
+            }
+
+            result[name] = {startDate: startDate, endDate: endDate};
         }
     })
 
@@ -88,7 +99,7 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                                         status: "Aktiv",
                                         projects: [{
                                             company: customerName,
-                                            startDate: null,
+                                            startDate: (projectDescriptions[consultantName] ? projectDescriptions[consultantName].startDate : null),
                                             endDate: (projectDescriptions[consultantName] ? projectDescriptions[consultantName].endDate : null)
                                         }]
                                     });
