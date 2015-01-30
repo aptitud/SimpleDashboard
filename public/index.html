@@ -1,6 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
-<title>Simple Dashboard - Aptitud</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Simple Dashboard - Aptitud</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
 
@@ -9,7 +13,19 @@
 	<div id="Dashboard"></div>
 
 	<script id="tpl-dashboard" type="text/x-handlebars-template">
-		template content {{data}}
+		<ul>
+		{{#each this}}
+			<li>
+				{{name}}:
+				{{#each projects}}
+					{{company}} {{startDate}}{{#if endDate}} &#8594; {{/if}}{{endDate}}
+				{{/each}}
+				{{#unless projects}}
+					{{status}}
+				{{/unless}}
+			</li>
+		{{/each}}
+		</ul>
 	</script>
 
 	<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
