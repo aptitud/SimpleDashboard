@@ -28,7 +28,7 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
     var trello = module.exports.create(CONFIG.KEY, CONFIG.TOKEN);
 
     trello.openBoard(CONFIG.STATUS_BOARD).getLists(function (lists) {
-        trello.getCardsByListId(lists, function(cardsByList) {
+        trello.getCardsByListId(lists, function (cardsByList) {
             var memberReferences = [];
 
             for (var i = 0; i < lists.length; i++) {
@@ -37,47 +37,50 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                 for (var j = 0; j < cards.length; j++) {
                     var card = cards[j];
 
-                    card.idMembers.forEach(function(memberId) {
+                    card.idMembers.forEach(function (memberId) {
                         memberReferences.push(memberId);
                     })
                 }
             }
 
-            trello.getMembers(memberReferences, function(members) {
-               for (var i = 0; i < lists.length; i++) {
-                   var list = lists[i];
-                   var cards = cardsByList[list.id];
+            trello.getMembers(memberReferences, function (members) {
+                for (var i = 0; i < lists.length; i++) {
+                    var list = lists[i];
+                    var cards = cardsByList[list.id];
 
-                   switch (list.id) {
-                       case "50372bbdec645cb1363eb7d5": /* På väg in */
-                           break;
-                       case "50372bbdec645cb1363eb7d4": /* Utan uppdrag */
-                           break;
-                       case "54b39b033116e865c9a4a3f1": /* Pågående uppdrag */
-                           var projectSpecs = {};
+                    switch (list.id) {
+                        case "50372bbdec645cb1363eb7d5": /* På väg in */
+                            break;
+                        case "50372bbdec645cb1363eb7d4": /* Utan uppdrag */
+                            break;
+                        case "54b39b033116e865c9a4a3f1": /* Pågående uppdrag */
+                            var projectSpecs = [];
 
-                           cards.forEach(function(card) {
-                               var consultants = [];
-                               var customerName = card.name;
-                               var projectDescriptions = module.exports.parseProjectDuration(card.desc);
+                            cards.forEach(function (card) {
+                                var consultants = [];
+                                var customerName = card.name;
+                                var projectDescriptions = module.exports.parseProjectDuration(card.desc);
 
-                               card.idMembers.forEach(function(memberId) {
-                                   var consultantName = members[memberId].fullName;
+                                card.idMembers.forEach(function (memberId) {
+                                    var consultantName = members[memberId].fullName;
 
-                                   consultants.push(consultantName);
+                                    consultants.push(consultantName);
 
-                                   projectSpecs[consultantName] = {
-                                       company: customerName,
-                                       endDate: (projectDescriptions[consultantName] ? projectDescriptions[consultantName].endDate : null)
-                                   }
-                               });
-                           });
+                                    projectSpecs.push({
+                                        name: consultantName,
+                                        project: {
+                                            company: customerName,
+                                            endDate: (projectDescriptions[consultantName] ? projectDescriptions[consultantName].endDate : null)
+                                        }
+                                    });
+                                });
+                            });
 
-                           retrieveConsultansCallback(projectSpecs);
+                            retrieveConsultansCallback(projectSpecs);
 
-                           break;
-                   }
-               }
+                            break;
+                    }
+                }
             });
         });
     });
@@ -115,14 +118,14 @@ module.exports.create = function (key, token) {
             });
         },
 
-        getCardsByListId: function(lists, callback) {
+        getCardsByListId: function (lists, callback) {
             var cardsByList = {};
             var responseCount = 0;
             var self = this;
 
             for (var i = 0; i < lists.length; i++) {
-                (function(index) {
-                    self.getCards(lists[i].id, function(card) {
+                (function (index) {
+                    self.getCards(lists[i].id, function (card) {
                         cardsByList[lists[index].id] = card;
 
                         if (++responseCount == lists.length) {
@@ -161,14 +164,14 @@ module.exports.create = function (key, token) {
             });
         },
 
-        getMembers: function(memberIds, callback) {
+        getMembers: function (memberIds, callback) {
             var result = {};
             var responseCount = 0;
             var self = this;
 
             for (var i = 0; i < memberIds.length; i++) {
-                (function(index) {
-                    self.getMember(memberIds[i], function(member) {
+                (function (index) {
+                    self.getMember(memberIds[i], function (member) {
                         result[memberIds[index]] = member;
 
                         if (++responseCount == memberIds.length) {
