@@ -68,10 +68,10 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
 
                                     projectSpecs.push({
                                         name: consultantName,
-                                        project: {
+                                        projects: [{
                                             company: customerName,
                                             endDate: (projectDescriptions[consultantName] ? projectDescriptions[consultantName].endDate : null)
-                                        }
+                                        }]
                                     });
                                 });
                             });
