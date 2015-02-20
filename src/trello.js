@@ -28,7 +28,11 @@ module.exports.parseProjectDuration = function (text) {
                 endDate = dateSpec.substring(n + 3).trim();
             }
 
-            result[name] = {startDate: startDate, endDate: endDate};
+            if (result[name]) {
+                result[name].push({startDate: startDate, endDate: endDate});
+            } else {
+                result[name] = [{startDate: startDate, endDate: endDate}];
+            }
         }
     })
 
@@ -91,17 +95,31 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
 
                                 card.idMembers.forEach(function (memberId) {
                                     var consultantName = members[memberId].fullName;
+                                    var projects = [];
 
                                     consultants.push(consultantName);
+
+                                    var projectDescriptionForConsultant = projectDescriptions[consultantName];
+
+                                    console.log('Loaded project descriptions for consultant ' + consultantName + ' at customer ' + customerName 
+                                        + ': ' + JSON.stringify(projectDescriptionForConsultant));
+
+                                    if (!projectDescriptionForConsultant || projectDescriptionForConsultant.length === 0) {
+                                        projects.push({company: customerName, startDate: null, endDate: null});
+                                    } else {
+                                        projectDescriptionForConsultant.forEach(function(projectDescription) {
+                                            projects.push({
+                                                company: customerName,
+                                                startDate: projectDescription.startDate,
+                                                endDate: projectDescription.endDate
+                                            });
+                                        });
+                                    }
 
                                     projectSpecs.push({
                                         name: consultantName,
                                         status: "Aktiv",
-                                        projects: [{
-                                            company: customerName,
-                                            startDate: (projectDescriptions[consultantName] ? projectDescriptions[consultantName].startDate : null),
-                                            endDate: (projectDescriptions[consultantName] ? projectDescriptions[consultantName].endDate : null)
-                                        }]
+                                        projects: projects
                                     });
                                 });
                             });
