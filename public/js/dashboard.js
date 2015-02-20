@@ -5,13 +5,18 @@ aptitud.dashboard = (function() {
 		tplDashboard = Handlebars.compile($('#tpl-dashboard').html());
 
 	pub.init = function() {
-		$.getJSON( "/consultants", function( data ) {
-			data = arrangeProjects(data);
-			$('#Dashboard').append(tplDashboard(data));
-		});
+		updateDashboard();
 	};
 
-	arrangeProjects = function(data) {
+	var updateDashboard = function() {
+		$.getJSON( "/consultants", function( data ) {
+			data = arrangeProjects(data);
+			$('#Dashboard').html(tplDashboard(data));
+			setTimeout(updateDashboard, 60000);
+		});
+	}
+
+	var arrangeProjects = function(data) {
 		var newProjs, startMonth, endMonth, prevEnd;
 		for(var i=0, ilen=data.length; i<ilen; i++) {
 			newProjs = [];
@@ -39,8 +44,6 @@ aptitud.dashboard = (function() {
 				if (j+1==jlen && endMonth<11) {
 					newProjs.push({company:'',startMonth:endMonth+1,monthSpan:11-endMonth});
 				}
-
-				console.log(data[i].projects[j]);
 			}
 			data[i].projects = newProjs;
 		}
