@@ -5,31 +5,58 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title>Simple Dashboard - Aptitud</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="css/dashboard.css">
 </head>
 <body>
 
-	<h1>Simple Dashboard</h1>
+	<img id="logo" src="http://www.aptitud.se/images/aptitudlogo.png">
 
 	<div id="Dashboard"></div>
 
 	<script id="tpl-dashboard" type="text/x-handlebars-template">
-		<ul>
+		<table>
+		<thead>
+			<tr>
+				<th></th>
+				<th>Jan</th>
+				<th>Feb</th>
+				<th>Mar</th>
+				<th>Apr</th>
+				<th>Maj</th>
+				<th>Jun</th>
+				<th>Jul</th>
+				<th>Aug</th>
+				<th>Sep</th>
+				<th>Okt</th>
+				<th>Nov</th>
+				<th>Dec</th>
+			</tr>
+		</thead>
+		<tbody>
 		{{#each this}}
-			<li>
-				{{name}}:
+			<tr>
+				<th>{{name}}</th>
 				{{#each projects}}
-					{{company}} {{startDate}}{{#if endDate}} &#8594; {{/if}}{{endDate}}
+					{{#if company}}
+						<td colspan="{{monthSpan}}" class="onContract">{{company}} {{startDate}}{{#if endDate}} &#8594; {{/if}}{{endDate}}</td>
+					{{else}}
+						<td colspan="{{monthSpan}}" class="offContract">&nbsp;</td>
+					{{/if}}
 				{{/each}}
 				{{#unless projects}}
-					{{status}}
+					<td colspan="12" class="offContract">{{status}}</td>
 				{{/unless}}
-			</li>
+			</tr>
 		{{/each}}
-		</ul>
+		</tbody>
+		</table>
 	</script>
 
 	<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
 	<script src="js/handlebars-v2.0.0.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
 	<script src="js/dashboard.js"></script>
 </body>
 </html>
