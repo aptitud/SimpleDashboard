@@ -19,6 +19,9 @@ aptitud.dashboard = (function() {
 				startMonth = data[i].projects[j].startDate ? (new Date(data[i].projects[j].startDate)).getMonth() : 0;
 				endMonth = data[i].projects[j].endDate ? (new Date(data[i].projects[j].endDate)).getMonth() : 11;
 
+				if ((new Date()).getYear() > (new Date(data[i].projects[j].startDate)).getYear()) startMonth = 0;
+				if ((new Date()).getYear() < (new Date(data[i].projects[j].endDate)).getYear()) endMonth = 11;
+
 				if(prevEnd && prevEnd < (startMonth+1)) {
 					newProjs.push({company:'',startMonth:prevEnd+1,monthSpan:startMonth-prevEnd-1});
 				}

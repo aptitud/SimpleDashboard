@@ -116,11 +116,29 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                                         });
                                     }
 
-                                    projectSpecs.push({
-                                        name: consultantName,
-                                        status: "Aktiv",
-                                        projects: projects
-                                    });
+                                    var existingProjectSpec = null;
+
+                                    for (var i = 0; i < projectSpecs.length && existingProjectSpec == null; i++) {
+                                        if (projectSpecs[i].name === consultantName) {
+                                            existingProjectSpec = projectSpecs[i];
+                                        }
+                                    }
+
+                                    if (existingProjectSpec == null) {
+                                        projectSpecs.push({
+                                            name: consultantName,
+                                            status: "Aktiv",
+                                            projects: projects
+                                        });    
+                                    } else {
+                                        if (existingProjectSpec.projects == null) {
+                                            existingProjectSpec.projects = projects;
+                                        } else {
+                                            projects.forEach(function(project) {
+                                                existingProjectSpec.projects.push(project);
+                                            });
+                                        }
+                                    }
                                 });
                             });
 
