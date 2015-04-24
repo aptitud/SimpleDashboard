@@ -180,11 +180,19 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                     }
                     return "" + num;
                 }
+
+                function noAssignment(date) {
+                    return {
+                        hasAssignment: false,
+                        yearMonth: date.getFullYear() + '-' + prefixZero(date.getMonth() + 1)
+                    };
+                }
+
                 function hasAssignment(c, date) {
                     if (!c.projects || c.projects.length == 0) {
-                        return {hasAssignment:false, yearMonth:date.getFullYear() + '-' + prefixZero(date.getMonth() + 1)};
+                        return noAssignment(date);
                     }
-                    var hasAssignment = {hasAssignment:false};
+                    var hasAssignment = noAssignment(date);
                     for(var i = 0; i < c.projects.length; i++) {
                         var p = c.projects[i];
                         var s = p.startDate && new Date(p.startDate);
