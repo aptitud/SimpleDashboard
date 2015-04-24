@@ -10,42 +10,45 @@ aptitud.dashboard = (function() {
 
 	var updateDashboard = function() {
 		$.getJSON( "/consultants", function( data ) {
-			data = arrangeProjects(data);
-			$('#Dashboard').html(tplDashboard(data));
+			var dashboardData = {
+				employees: arrangeProjects(data),
+				monthNames: getMonthNames()
+			};
+			$('#Dashboard').html(tplDashboard(dashboardData));
 			setTimeout(updateDashboard, 60000);
 		});
 	}
 
+	var getMonthNames = function() {
+		var monthNames = ['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Aug','Sep','Okt','Nov','Dec'],
+			months = [],
+			index = (new Date()).getMonth();
+		for (var i=0;i<12;i++) {
+			months.push(monthNames[index]);
+			index = index+1==12 ? 0 : index+1;
+		}
+		return months;
+	};
+
 	var arrangeProjects = function(data) {
-		var newProjs, startMonth, endMonth, prevEnd;
+		var newAssignmentPeriods,prevAssignment,prevAssigned,assignmentSpan;
 		for(var i=0, ilen=data.length; i<ilen; i++) {
-			newProjs = [];
-			for(var j=0, jlen=data[i].projects.length; j<jlen; j++) {
-				startMonth = data[i].projects[j].startDate ? (new Date(data[i].projects[j].startDate)).getMonth() : 0;
-				endMonth = data[i].projects[j].endDate ? (new Date(data[i].projects[j].endDate)).getMonth() : 11;
-
-				if ((new Date()).getYear() > (new Date(data[i].projects[j].startDate)).getYear()) startMonth = 0;
-				if ((new Date()).getYear() < (new Date(data[i].projects[j].endDate)).getYear()) endMonth = 11;
-
-				if(prevEnd && prevEnd < (startMonth+1)) {
-					newProjs.push({company:'',startMonth:prevEnd+1,monthSpan:startMonth-prevEnd-1});
+			newAssignmentPeriods = [];
+			prevAssignment = data[i].monthViewAssignment[0].project ? data[i].monthViewAssignment[0].project.company : null;
+			prevAssigned =  data[i].monthViewAssignment[0].hasAssignment;
+			assignmentSpan = 0;
+			for(var j=0, jlen=data[i].monthViewAssignment.length; j<jlen; j++) {
+				if(data[i].monthViewAssignment[j].hasAssignment === prevAssigned && (!data[i].monthViewAssignment[j].project || data[i].monthViewAssignment[j].project.company === prevAssignment)) {
+					assignmentSpan++;
+					if (j===jlen-1) newAssignmentPeriods.push({assigned:data[i].monthViewAssignment[j].hasAssignment,span:assignmentSpan,project:data[i].monthViewAssignment[j].project});
+				} else {
+					newAssignmentPeriods.push({assigned:prevAssigned,span:assignmentSpan,project:data[i].monthViewAssignment[j===0?0:j-1].project});
+					assignmentSpan = 1;
 				}
-				prevEnd = endMonth;
-
-				// Add initial project if first project is not started in January
-				if (!newProjs.length && startMonth>0) {
-					newProjs.push({company:'',startMonth:0,monthSpan:startMonth});
-				}
-				data[i].projects[j].startMonth = startMonth;
-				data[i].projects[j].monthSpan = endMonth-startMonth+1;
-				newProjs.push(data[i].projects[j]);
-
-				// Add ending project if last project is not ended in December
-				if (j+1==jlen && endMonth<11) {
-					newProjs.push({company:'',startMonth:endMonth+1,monthSpan:11-endMonth});
-				}
+				prevAssigned = data[i].monthViewAssignment[j].hasAssignment;
+				prevAssignment = data[i].monthViewAssignment[j].project ? data[i].monthViewAssignment[j].project.company : null;
 			}
-			data[i].projects = newProjs;
+			data[i].assignmentPeriods = newAssignmentPeriods;
 		}
 		return data;
 	};

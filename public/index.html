@@ -35,8 +35,6 @@
 </head>
 <body>
 
-	<img id="logo" src="http://www.aptitud.se/images/aptitudlogo.png">
-
 	<div id="Dashboard"></div>
 
 	<script id="tpl-dashboard" type="text/x-handlebars-template">
@@ -44,33 +42,24 @@
 		<thead>
 			<tr>
 				<th></th>
-				<th>Jan</th>
-				<th>Feb</th>
-				<th>Mar</th>
-				<th>Apr</th>
-				<th>Maj</th>
-				<th>Jun</th>
-				<th>Jul</th>
-				<th>Aug</th>
-				<th>Sep</th>
-				<th>Okt</th>
-				<th>Nov</th>
-				<th>Dec</th>
+				{{#each monthNames}}
+					<th>{{this}}</th>
+				{{/each}}
 			</tr>
 		</thead>
 		<tbody>
-		{{#each this}}
+		{{#each employees}}
 			<tr>
 				<th>{{name}}</th>
-				{{#each projects}}
-					{{#if company}}
-						<td colspan="{{monthSpan}}" class="onContract">{{company}} {{startDate}}{{#if endDate}} &#8594; {{/if}}{{endDate}}</td>
+				{{#each assignmentPeriods}}
+					{{#if project}}
+						<td colspan="{{span}}" class="onContract" title="{{project.company}} {{project.startDate}}{{#if project.endDate}} &#8594; {{/if}}{{project.endDate}}">&nbsp;</td>
 					{{else}}
-						<td colspan="{{monthSpan}}" class="offContract">&nbsp;</td>
+						<td colspan="{{span}}" class="offContract">&nbsp;</td>
 					{{/if}}
 				{{/each}}
-				{{#unless projects}}
-					<td colspan="12" class="offContract">{{status}}</td>
+				{{#unless assignmentPeriods}}
+					<td colspan="12" class="offContract">???Tjänstledig???</td>
 				{{/unless}}
 			</tr>
 		{{/each}}
