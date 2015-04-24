@@ -7,26 +7,11 @@ app.set('port', (process.env.PORT || 5000));
 
 app.use(express.static(__dirname + '/public'));
 
-function secureToHttps(request, response) {
-    var protocol = request.headers['X-Forwarded-Proto'];
-    if (protocol && protocol == 'http') {
-        response.redirect("https://" + req.hostname + "/public/index.html");
-        return true;
-    }
-    return false;
-}
-
 app.get('/', function (request, response) {
-    if (secureToHttps(request, response)) {
-        return;
-    }
     response.redirect("/public/index.html");
 });
 
 app.get("/consultants", function (request, response) {
-    if (secureToHttps(request, response)) {
-        return;
-    }
     var getConsultants = function (callback) {
         if (this.__cache && Date.now() - this.__cacheDate > 5 * 60 * 1000) {
             delete this.__cache;
