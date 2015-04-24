@@ -82,10 +82,6 @@
 		width: 100%	
 		color:#eee;
 	}
-
-	.hex .aptitudbg {
-		background-image: url(img/Aptitud-logo_gul.png);
-	}
 	
 	.hex h4 {
 		font-family: 'Josefin Sans', sans-serif;		
@@ -135,8 +131,8 @@
 
 	.hex.hex-5 {
 		background: #F15D2A;
-		top: 225px;
-		left: -389px;
+		top: 448px;
+		left: -779px;
 		color: #e6e6e6;
 		padding-top: 20px;
 	}
