@@ -14,5 +14,5 @@ SimpleDashboard is hosted on Heroku. To deploy from github, do:
 
 * git clone https://github.com/aptitud/SimpleDashboard.git
 * cd SimpleDashboard
-* heroku git:remote -a safe-brook-5766
+* heroku git:remote -a aptituddashboard
 * git push heroku master

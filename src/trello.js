@@ -101,13 +101,13 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
 
                                     var projectDescriptionForConsultant = projectDescriptions[consultantName];
 
-                                    console.log('Loaded project descriptions for consultant ' + consultantName + ' at customer ' + customerName 
-                                        + ': ' + JSON.stringify(projectDescriptionForConsultant));
+                                    console.log('Loaded project descriptions for consultant ' + consultantName + ' at customer ' + customerName
+                                    + ': ' + JSON.stringify(projectDescriptionForConsultant));
 
                                     if (!projectDescriptionForConsultant || projectDescriptionForConsultant.length === 0) {
                                         projects.push({company: customerName, startDate: null, endDate: null});
                                     } else {
-                                        projectDescriptionForConsultant.forEach(function(projectDescription) {
+                                        projectDescriptionForConsultant.forEach(function (projectDescription) {
                                             projects.push({
                                                 company: customerName,
                                                 startDate: projectDescription.startDate,
@@ -126,7 +126,7 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
 
                                     function maxEndDate(projects) {
                                         var max;
-                                        projects.forEach(function(p) {
+                                        projects.forEach(function (p) {
                                             if (p.endDate) {
                                                 if (!max) {
                                                     max = new Date(p.endDate);
@@ -143,12 +143,12 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                                             name: consultantName,
                                             status: "Aktiv",
                                             projects: projects
-                                        });    
+                                        });
                                     } else {
                                         if (existingProjectSpec.projects == null) {
                                             existingProjectSpec.projects = projects;
                                         } else {
-                                            projects.forEach(function(project) {
+                                            projects.forEach(function (project) {
                                                 existingProjectSpec.projects.push(project);
                                             });
                                         }
@@ -163,7 +163,7 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
 
                 function maxEndDate(projects) {
                     var max;
-                    projects.forEach(function(p) {
+                    projects.forEach(function (p) {
                         if (p.endDate) {
                             if (!max) {
                                 max = new Date(p.endDate);
@@ -174,42 +174,59 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                     });
                     return max;
                 };
+                function prefixZero(num) {
+                    if (num < 10) {
+                        return "0" + num;
+                    }
+                    return "" + num;
+                }
+
+                function noAssignment(date) {
+                    return {
+                        hasAssignment: false,
+                        yearMonth: date.getFullYear() + '-' + prefixZero(date.getMonth() + 1)
+                    };
+                }
+
                 function hasAssignment(c, date) {
                     if (!c.projects || c.projects.length == 0) {
-                        return false;
+                        return noAssignment(date);
                     }
-                    var hasAssignment = false;
-                    for(var i = 0; i < c.projects.length; i++) {
+                    var hasAssignment = noAssignment(date);
+                    for (var i = 0; i < c.projects.length; i++) {
                         var p = c.projects[i];
                         var s = p.startDate && new Date(p.startDate);
                         var e = p.endDate && new Date(p.endDate);
                         if (s && e) {
-                            hasAssignment = date.getTime() >= s.getTime() && date.getTime() <= e.getTime();
+                            hasAssignment.hasAssignment = date.getTime() >= s.getTime() && date.getTime() <= e.getTime();
                         } else if (s) {
-                            hasAssignment = date.getTime() >= s.getTime();
+                            hasAssignment.hasAssignment = date.getTime() >= s.getTime();
                         } else if (e) {
-                            hasAssignment = date.getTime() <= e.getTime();
+                            hasAssignment.hasAssignment = date.getTime() <= e.getTime();
                         }
-                        if (hasAssignment) {
+                        if (hasAssignment.hasAssignment) {
+                            hasAssignment.project = p;
+                            hasAssignment.yearMonth = date.getFullYear() + '-' + prefixZero(date.getMonth() + 1);
                             break;
                         }
-                    };
+                    }
+                    ;
                     return hasAssignment;
                 };
-                projectSpecs.forEach(function(c) {
+                projectSpecs.forEach(function (c) {
                     c.maxEndDate = maxEndDate(c.projects);
                     var date = new Date();
-/*                    date.setMilliseconds(0);
-                    date.setSeconds(0);
-                    date.setMinutes(0);
-                    date.setHours(0);
-                    date.setDate(0);*/
+                    /*                    date.setMilliseconds(0);
+                     date.setSeconds(0);
+                     date.setMinutes(0);
+                     date.setHours(0);
+                     date.setDate(0);*/
                     var startMonth = date.getMonth();
                     c.monthViewStartDate = new Date();
                     c.monthViewEndDate = new Date();
                     c.monthViewEndDate.setMonth(c.monthViewEndDate.getMonth() + 11);
                     c.monthViewAssignment = [];
-                    for(var i = 0; i < 12; i++) {
+                    for (var i = 0; i < 12; i++) {
                         date.setMonth(i + startMonth);
                         c.monthViewAssignment.push(hasAssignment(c, date));
                     }
@@ -239,6 +256,7 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                     }
                     return -1;
                 }
+
                 projectSpecs.sort(byNoAssignmentFirstAndEndDate);
                 retrieveConsultansCallback(projectSpecs);
             });
