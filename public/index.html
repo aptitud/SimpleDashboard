@@ -53,13 +53,13 @@
 				<th>{{name}}</th>
 				{{#each assignmentPeriods}}
 					{{#if project}}
-						<td colspan="{{span}}" class="onContract" title="{{project.company}} {{project.startDate}}{{#if project.endDate}} &#8594; {{/if}}{{project.endDate}}">&nbsp;</td>
+						<td colspan="{{span}}" class="onContract" title="{{project.company}} {{project.startDate}}{{#if project.endDate}} &#8594; {{/if}}{{project.endDate}}">{{project.company}}</td>
 					{{else}}
 						<td colspan="{{span}}" class="offContract">&nbsp;</td>
 					{{/if}}
 				{{/each}}
 				{{#unless assignmentPeriods}}
-					<td colspan="12" class="offContract">???Tjänstledig???</td>
+					<td colspan="12" class="offContract">&nbsp;</td>
 				{{/unless}}
 			</tr>
 		{{/each}}
