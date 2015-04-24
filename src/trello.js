@@ -174,23 +174,31 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                     });
                     return max;
                 };
+                function prefixZero(num) {
+                    if (num < 10) {
+                        return "0" + num;
+                    }
+                    return "" + num;
+                }
                 function hasAssignment(c, date) {
                     if (!c.projects || c.projects.length == 0) {
-                        return false;
+                        return {hasAssignment:false};
                     }
-                    var hasAssignment = false;
+                    var hasAssignment = {hasAssignment:false};
                     for(var i = 0; i < c.projects.length; i++) {
                         var p = c.projects[i];
                         var s = p.startDate && new Date(p.startDate);
                         var e = p.endDate && new Date(p.endDate);
                         if (s && e) {
-                            hasAssignment = date.getTime() >= s.getTime() && date.getTime() <= e.getTime();
+                            hasAssignment.hasAssignment = date.getTime() >= s.getTime() && date.getTime() <= e.getTime();
                         } else if (s) {
-                            hasAssignment = date.getTime() >= s.getTime();
+                            hasAssignment.hasAssignment = date.getTime() >= s.getTime();
                         } else if (e) {
-                            hasAssignment = date.getTime() <= e.getTime();
+                            hasAssignment.hasAssignment = date.getTime() <= e.getTime();
                         }
-                        if (hasAssignment) {
+                        if (hasAssignment.hasAssignment) {
+                            hasAssignment.company = p.company;
+                            hasAssignment.yearMonth = date.getFullYear() + '-' + prefixZero(date.getMonth() + 1);
                             break;
                         }
                     };
