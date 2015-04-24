@@ -182,7 +182,7 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                 }
                 function hasAssignment(c, date) {
                     if (!c.projects || c.projects.length == 0) {
-                        return {hasAssignment:false};
+                        return {hasAssignment:false, yearMonth:date.getFullYear() + '-' + prefixZero(date.getMonth() + 1)};
                     }
                     var hasAssignment = {hasAssignment:false};
                     for(var i = 0; i < c.projects.length; i++) {
@@ -197,7 +197,7 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                             hasAssignment.hasAssignment = date.getTime() <= e.getTime();
                         }
                         if (hasAssignment.hasAssignment) {
-                            hasAssignment.company = p.company;
+                            hasAssignment.project = p;
                             hasAssignment.yearMonth = date.getFullYear() + '-' + prefixZero(date.getMonth() + 1);
                             break;
                         }
