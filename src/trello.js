@@ -72,7 +72,7 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                             cards.forEach(function (card) {
                                 var name = card.name;
                                 var n = name.indexOf('-');
-                                var status = "UNKNOWN";
+                                var status;
 
                                 if (n != -1) {
                                     status = name.substring(n + 1).trim();
@@ -146,6 +146,44 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                     }
                 }
 
+                function maxEndDate(projects) {
+                    var max;
+                    projects.forEach(function(p) {
+                        if (p.endDate) {
+                            if (!max) {
+                                max = new Date(p.endDate);
+                            } else if (max.getTime() < new Date(p.endDate).getTime()) {
+                                max = new Date(p.endDate);
+                            }
+                        }
+                    });
+                    return max;
+                };
+                function byNoAssignmentFirstAndEndDate(c1, c2) {
+                    if (c1.status == 'Aktiv' && c2.status == 'Aktiv') {
+                        var m1 = maxEndDate(c1.projects);
+                        var m2 = maxEndDate(c2.projects);
+//                        console.log(c1.name +  ' ' + m1 + '; ' + c2.name + ' ' + m2);
+                        if (m1 && m2) {
+                            return m1.getTime() - m2.getTime();
+                        }
+                        if (m1) {
+                            return -1;
+                        }
+                        return 1;
+                    }
+                    if (c1.status == 'Aktiv') {
+                        if (c2.status == 'Tjänstledig') {
+                            return -1;
+                        }
+                        return 1;
+                    }
+                    if (c1.status == 'Tjänstledig') {
+                        return 1;
+                    }
+                    return -1;
+                }
+                projectSpecs.sort(byNoAssignmentFirstAndEndDate);
                 retrieveConsultansCallback(projectSpecs);
             });
         });
