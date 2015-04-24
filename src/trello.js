@@ -213,7 +213,7 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                         date.setMonth(i + startMonth);
                         c.monthViewAssignment.push(hasAssignment(c, date));
                     }
-                    console.log(c.name + " " + c.monthViewAssignment);
+                    //console.log(c.name + " " + c.monthViewAssignment);
                 });
                 function byNoAssignmentFirstAndEndDate(c1, c2) {
                     if (c1.status == 'Aktiv' && c2.status == 'Aktiv') {
