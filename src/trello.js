@@ -124,6 +124,20 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                                         }
                                     }
 
+                                    function maxEndDate(projects) {
+                                        var max;
+                                        projects.forEach(function(p) {
+                                            if (p.endDate) {
+                                                if (!max) {
+                                                    max = new Date(p.endDate);
+                                                } else if (max.getTime() < new Date(p.endDate).getTime()) {
+                                                    max = new Date(p.endDate);
+                                                }
+                                            }
+                                        });
+                                        return max;
+                                    };
+
                                     if (existingProjectSpec == null) {
                                         projectSpecs.push({
                                             name: consultantName,
@@ -139,6 +153,7 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                                             });
                                         }
                                     }
+
                                 });
                             });
 
@@ -159,11 +174,52 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                     });
                     return max;
                 };
+                function hasAssignment(c, date) {
+                    if (!c.projects || c.projects.length == 0) {
+                        return false;
+                    }
+                    var hasAssignment = false;
+                    for(var i = 0; i < c.projects.length; i++) {
+                        var p = c.projects[i];
+                        var s = p.startDate && new Date(p.startDate);
+                        var e = p.endDate && new Date(p.endDate);
+                        if (s && e) {
+                            hasAssignment = date.getTime() >= s.getTime() && date.getTime() <= e.getTime();
+                        } else if (s) {
+                            hasAssignment = date.getTime() >= s.getTime();
+                        } else if (e) {
+                            hasAssignment = date.getTime() <= e.getTime();
+                        }
+                        if (hasAssignment) {
+                            break;
+                        }
+                    };
+                    return hasAssignment;
+                };
+                projectSpecs.forEach(function(c) {
+                    c.maxEndDate = maxEndDate(c.projects);
+                    var date = new Date();
+/*                    date.setMilliseconds(0);
+                    date.setSeconds(0);
+                    date.setMinutes(0);
+                    date.setHours(0);
+                    date.setDate(0);*/
+                    var startMonth = date.getMonth();
+                    c.monthViewStartDate = new Date();
+                    c.monthViewEndDate = new Date();
+                    c.monthViewEndDate.setMonth(c.monthViewEndDate.getMonth() + 11);
+                    c.monthViewAssignment = [];
+                    for(var i = 0; i < 12; i++) {
+                        date.setMonth(i + startMonth);
+                        c.monthViewAssignment.push(hasAssignment(c, date));
+                    }
+                    console.log(c.name + " " + c.monthViewAssignment);
+                });
                 function byNoAssignmentFirstAndEndDate(c1, c2) {
                     if (c1.status == 'Aktiv' && c2.status == 'Aktiv') {
-                        var m1 = maxEndDate(c1.projects);
-                        var m2 = maxEndDate(c2.projects);
-//                        console.log(c1.name +  ' ' + m1 + '; ' + c2.name + ' ' + m2);
+                        var m1 = c1.maxEndDate;
+                        var m2 = c2.maxEndDate;
+                        //console.log(c1.name +  ' ' + m1 + '; ' + c2.name + ' ' + m2);
                         if (m1 && m2) {
                             return m1.getTime() - m2.getTime();
                         }
