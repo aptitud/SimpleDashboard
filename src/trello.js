@@ -203,6 +203,9 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                             hasAssignment.hasAssignment = date.getTime() >= s.getTime();
                         } else if (e) {
                             hasAssignment.hasAssignment = date.getTime() <= e.getTime();
+                        } else {
+                            // both start and end is null means forever
+                            hasAssignment.hasAssignment = true;
                         }
                         if (hasAssignment.hasAssignment) {
                             hasAssignment.project = p;
