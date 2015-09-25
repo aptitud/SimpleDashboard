@@ -229,8 +229,17 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                     c.monthViewEndDate = new Date();
                     c.monthViewEndDate.setMonth(c.monthViewEndDate.getMonth() + 11);
                     c.monthViewAssignment = [];
+                    var year = undefined;
                     for (var i = 0; i < 12; i++) {
-                        date.setMonth(i + startMonth);
+                        var month = i + startMonth;
+                        if (month > 11) {
+                            if (!year) {
+                                year = date.getFullYear() + 1;
+                            }
+                            date.setFullYear(year, month - 12);
+                        } else {
+                            date.setMonth(month);
+                        }
                         c.monthViewAssignment.push(hasAssignment(c, date));
                     }
                     //console.log(c.name + " " + c.monthViewAssignment);
