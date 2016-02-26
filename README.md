@@ -10,9 +10,10 @@ Build and run
 Heroku
 ======
 
-SimpleDashboard is hosted on [Heroku](http://aptituddashboard.herokuapp.com/). To deploy from github, do:
+SimpleDashboard is hosted on [Heroku](http://aptituddashboard.herokuapp.com/).
 
-* git clone https://github.com/aptitud/SimpleDashboard.git
-* cd SimpleDashboard
-* heroku git:remote -a aptituddashboard
-* git push heroku master
+Deploys happens automatically when you commit to the master branch of this report. 
+
+Yes, you can say thank you now. 
+
+
