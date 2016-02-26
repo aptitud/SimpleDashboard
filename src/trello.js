@@ -148,73 +148,16 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                     }
                 }
 
-                function maxEndDate(projects) {
-                    var max;
-                    projects.forEach(function (p) {
-                        if (p.endDate) {
-                            if (!max) {
-                                max = new Date(p.endDate);
-                            } else if (max.getTime() < new Date(p.endDate).getTime()) {
-                                max = new Date(p.endDate);
-                            }
-                        }
-                    });
-                    return max;
-                };
-
-                function prefixZero(num) {
-                    if (num < 10) {
-                        return "0" + num;
-                    }
-                    return "" + num;
-                }
-
-                function noAssignment(date) {
-                    return {
-                        hasAssignment: false,
-                        yearMonth: date.getFullYear() + '-' + prefixZero(date.getMonth() + 1)
-                    };
-                }
-
-                function hasAssignment(c, date) {
-                    if (!c.projects || c.projects.length == 0) {
-                        return noAssignment(date);
-                    }
-                    var hasAssignment = noAssignment(date);
-                    for (var i = 0; i < c.projects.length; i++) {
-                        var p = c.projects[i];
-                        var s = p.startDate && new Date(p.startDate);
-                        var e = p.endDate && new Date(p.endDate);
-                        if (s && e) {
-                            hasAssignment.hasAssignment = date.getTime() >= s.getTime() && date.getTime() <= e.getTime();
-                        } else if (s) {
-                            hasAssignment.hasAssignment = date.getTime() >= s.getTime();
-                        } else if (e) {
-                            hasAssignment.hasAssignment = date.getTime() <= e.getTime();
-                        } else {
-                            // both start and end is null means forever
-                            hasAssignment.hasAssignment = true;
-                        }
-                        if (hasAssignment.hasAssignment) {
-                            hasAssignment.project = p;
-                            hasAssignment.yearMonth = date.getFullYear() + '-' + prefixZero(date.getMonth() + 1);
-                            break;
-                        }
-                    }
-                    ;
-                    return hasAssignment;
-                };
-
                 projectSpecs.forEach(function (c) {
                     c.maxEndDate = maxEndDate(c.projects);
                     var date = new Date();
                     var startMonth = date.getMonth();
                     var year = undefined;
-
                     c.monthViewStartDate = new Date();
                     c.monthViewEndDate = new Date();
                     c.monthViewEndDate.setMonth(c.monthViewEndDate.getMonth() + 11);
                     c.monthViewAssignment = [];
+
                     for (var i = 0; i < 12; i++) {
                         var month = i + startMonth;
                         if (month > 11) {
@@ -257,6 +200,64 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
             });
         });
     });
+
+    function maxEndDate(projects) {
+        var max;
+        projects.forEach(function (p) {
+            if (p.endDate) {
+                if (!max) {
+                    max = new Date(p.endDate);
+                } else if (max.getTime() < new Date(p.endDate).getTime()) {
+                    max = new Date(p.endDate);
+                }
+            }
+        });
+        return max;
+    };
+
+    function prefixZero(num) {
+        if (num < 10) {
+            return "0" + num;
+        }
+        return "" + num;
+    }
+
+    function noAssignment(date) {
+        return {
+            hasAssignment: false,
+            yearMonth: date.getFullYear() + '-' + prefixZero(date.getMonth() + 1)
+        };
+    }
+
+    function hasAssignment(c, date) {
+        if (!c.projects || c.projects.length == 0) {
+            return noAssignment(date);
+        }
+        var hasAssignment = noAssignment(date);
+        for (var i = 0; i < c.projects.length; i++) {
+            var p = c.projects[i];
+            var s = p.startDate && new Date(p.startDate);
+            var e = p.endDate && new Date(p.endDate);
+            if (s && e) {
+                hasAssignment.hasAssignment = date.getTime() >= s.getTime() && date.getTime() <= e.getTime();
+            } else if (s) {
+                hasAssignment.hasAssignment = date.getTime() >= s.getTime();
+            } else if (e) {
+                hasAssignment.hasAssignment = date.getTime() <= e.getTime();
+            } else {
+                // both start and end is null means forever
+                hasAssignment.hasAssignment = true;
+            }
+            if (hasAssignment.hasAssignment) {
+                hasAssignment.project = p;
+                hasAssignment.yearMonth = date.getFullYear() + '-' + prefixZero(date.getMonth() + 1);
+                break;
+            }
+        }
+        ;
+        return hasAssignment;
+    };
+
 };
 
 module.exports.create = function (key, token) {
