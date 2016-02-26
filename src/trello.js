@@ -125,20 +125,6 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                                         }
                                     }
 
-                                    function maxEndDate(projects) {
-                                        var max;
-                                        projects.forEach(function (p) {
-                                            if (p.endDate) {
-                                                if (!max) {
-                                                    max = new Date(p.endDate);
-                                                } else if (max.getTime() < new Date(p.endDate).getTime()) {
-                                                    max = new Date(p.endDate);
-                                                }
-                                            }
-                                        });
-                                        return max;
-                                    };
-
                                     if (existingProjectSpec == null) {
                                         projectSpecs.push({
                                             name: consultantName,
@@ -175,6 +161,7 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                     });
                     return max;
                 };
+
                 function prefixZero(num) {
                     if (num < 10) {
                         return "0" + num;
@@ -217,20 +204,17 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                     ;
                     return hasAssignment;
                 };
+
                 projectSpecs.forEach(function (c) {
                     c.maxEndDate = maxEndDate(c.projects);
                     var date = new Date();
-                    /*                    date.setMilliseconds(0);
-                     date.setSeconds(0);
-                     date.setMinutes(0);
-                     date.setHours(0);
-                     date.setDate(0);*/
                     var startMonth = date.getMonth();
+                    var year = undefined;
+
                     c.monthViewStartDate = new Date();
                     c.monthViewEndDate = new Date();
                     c.monthViewEndDate.setMonth(c.monthViewEndDate.getMonth() + 11);
                     c.monthViewAssignment = [];
-                    var year = undefined;
                     for (var i = 0; i < 12; i++) {
                         var month = i + startMonth;
                         if (month > 11) {
@@ -243,13 +227,12 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                         }
                         c.monthViewAssignment.push(hasAssignment(c, date));
                     }
-                    //console.log(c.name + " " + c.monthViewAssignment);
                 });
                 function byNoAssignmentFirstAndEndDate(c1, c2) {
                     if (c1.status == 'Aktiv' && c2.status == 'Aktiv') {
                         var m1 = c1.maxEndDate;
                         var m2 = c2.maxEndDate;
-                        //console.log(c1.name +  ' ' + m1 + '; ' + c2.name + ' ' + m2);
+
                         if (m1 && m2) {
                             return m1.getTime() - m2.getTime();
                         }

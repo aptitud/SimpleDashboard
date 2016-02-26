@@ -53,7 +53,12 @@
 				<th>{{name}}</th>
 				{{#each assignmentPeriods}}
 					{{#if project}}
-						<td colspan="{{span}}" class="onContract" title="{{project.company}} {{project.startDate}}{{#if project.endDate}} &#8594; {{/if}}{{project.endDate}}"><a target="_blank" href="{{project.projectUrl}}">{{project.company}}</a></td>
+						<td 
+							colspan="{{span}}" 
+							class="onContract" 
+							title="{{project.company}} {{project.startDate}}{{#if project.endDate}} &#8594; {{/if}}{{project.endDate}}">
+								<a target="_blank" href="{{project.projectUrl}}">{{project.company}}</a>
+						</td>
 					{{else}}
 						<td colspan="{{span}}" class="offContract">&nbsp;</td>
 					{{/if}}
