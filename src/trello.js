@@ -111,7 +111,8 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                                             projects.push({
                                                 company: customerName,
                                                 startDate: projectDescription.startDate,
-                                                endDate: projectDescription.endDate
+                                                endDate: projectDescription.endDate,
+                                                projectUrl: card.shortUrl
                                             });
                                         });
                                     }
@@ -268,7 +269,6 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                     }
                     return -1;
                 }
-
                 projectSpecs.sort(byNoAssignmentFirstAndEndDate);
                 retrieveConsultansCallback(projectSpecs);
             });
