@@ -39,6 +39,145 @@ module.exports.parseProjectDuration = function (text) {
     return result;
 };
 
+module.exports.retrieveCustomers = function (retrieveCustomersCallback) {
+    var trello = module.exports.create(CONFIG.KEY, CONFIG.TOKEN);
+
+    trello.openBoard(CONFIG.STATUS_BOARD).getLists(function (lists) {
+        trello.getCardsByListId(lists, function (cardsByList) {
+            var memberReferences = [];
+
+            for (var i = 0; i < lists.length; i++) {
+                var cards = cardsByList[lists[i].id];
+
+                for (var j = 0; j < cards.length; j++) {
+                    var card = cards[j];
+
+                    card.idMembers.forEach(function (memberId) {
+                        memberReferences.push(memberId);
+                    })
+                }
+            }
+
+            trello.getMembers(memberReferences, function (members) {
+                var customers = [],
+					customerAssignments = [];
+
+                lists.forEach(function(list) {
+                    var cards = cardsByList[list.id];
+
+                    if (list.id === '54b39b033116e865c9a4a3f1') {
+						/* Pågående uppdrag */
+						cards.forEach(function (card) {
+							var customerName = card.name,
+								assignmentPeriods = module.exports.parseProjectDuration(card.desc),
+								consultantAssignments = [];
+
+							card.idMembers.forEach(function (memberId) {
+								var consultantName = members[memberId].fullName;
+								var projects = [];
+
+								var assignmentPeriodForConsultant = assignmentPeriods[consultantName];
+
+								if (assignmentPeriodForConsultant && assignmentPeriodForConsultant.length) {
+									assignmentPeriodForConsultant.forEach(function (assignmentPeriod) {
+										var startDate = new Date(assignmentPeriod.startDate),
+											startDateYear = startDate.getFullYear(),
+											startDateMonth = startDate.getMonth(),
+											endDate = new Date(assignmentPeriod.endDate),
+											endDateYear = endDate.getFullYear(),
+											endDateMonth = endDate.getMonth(),
+											currentYear = new Date().getFullYear(),
+											currentMonth = new Date().getMonth();
+
+										if ((startDateYear < currentYear) || (startDateYear == currentYear && startDateMonth <= currentMonth)) {
+											assignmentPeriod.startMonthIndex = 0;
+										} else {
+											assignmentPeriod.startMonthIndex = startDateMonth - currentMonth;
+										}
+										assignmentPeriod.assignmentSpan = (endDateMonth + 1) - currentMonth + (12 * (endDateYear - currentYear)) - assignmentPeriod.startMonthIndex;
+										assignmentPeriod.outSpan = 12 - assignmentPeriod.assignmentSpan - assignmentPeriod.startMonthIndex;
+//										if (assignmentPeriod.outSpan < 0) assignmentPeriod.outSpan = 0;
+										assignmentPeriod.alert = (customerName === 'Behöver uppdrag');
+									});
+									consultantAssignments.push({
+										consultant: consultantName,
+										assignmentPeriods: assignmentPeriodForConsultant
+									});
+								}
+							});
+
+							customers.push({
+								customer: customerName,
+								cardLink: card.shortUrl,
+								assignments: consultantAssignments
+							});
+						});
+                    }
+                });
+                retrieveCustomersCallback(customers);
+            });
+        });
+    });
+
+    function maxEndDate(projects) {
+        var max;
+        projects.forEach(function (p) {
+            if (p.endDate) {
+                if (!max) {
+                    max = new Date(p.endDate);
+                } else if (max.getTime() < new Date(p.endDate).getTime()) {
+                    max = new Date(p.endDate);
+                }
+            }
+        });
+        return max;
+    };
+
+    function prefixZero(num) {
+        if (num < 10) {
+            return "0" + num;
+        }
+        return "" + num;
+    }
+
+    function noAssignment(date) {
+        return {
+            hasAssignment: false,
+            yearMonth: date.getFullYear() + '-' + prefixZero(date.getMonth() + 1)
+        };
+    }
+
+    function hasAssignment(c, date) {
+        if (!c.projects || c.projects.length == 0) {
+            return noAssignment(date);
+        }
+        var hasAssignment = noAssignment(date);
+        for (var i = 0; i < c.projects.length; i++) {
+            var p = c.projects[i];
+            var s = p.startDate && new Date(p.startDate);
+            var e = p.endDate && new Date(p.endDate);
+            if (s && e) {
+                hasAssignment.hasAssignment = date.getTime() >= s.getTime() && date.getTime() <= e.getTime();
+            } else if (s) {
+                hasAssignment.hasAssignment = date.getTime() >= s.getTime();
+            } else if (e) {
+                hasAssignment.hasAssignment = date.getTime() <= e.getTime();
+            } else {
+                // both start and end is null means forever
+                hasAssignment.hasAssignment = true;
+            }
+            if (hasAssignment.hasAssignment) {
+                hasAssignment.project = p;
+                hasAssignment.yearMonth = date.getFullYear() + '-' + prefixZero(date.getMonth() + 1);
+                break;
+            }
+        }
+        ;
+        return hasAssignment;
+    };
+};
+
+
 module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
     var trello = module.exports.create(CONFIG.KEY, CONFIG.TOKEN);
 
@@ -112,7 +251,8 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
                                                 company: customerName,
                                                 startDate: projectDescription.startDate,
                                                 endDate: projectDescription.endDate,
-                                                projectUrl: card.shortUrl
+                                                projectUrl: card.shortUrl,
+												alert: (customerName === 'Behöver uppdrag')
                                             });
                                         });
                                     }
@@ -257,7 +397,6 @@ module.exports.retrieveConsultants = function (retrieveConsultansCallback) {
         ;
         return hasAssignment;
     };
-
 };
 
 module.exports.create = function (key, token) {

@@ -2,10 +2,12 @@ var aptitud = aptitud || {}
 
 aptitud.dashboard = (function() {
 	var pub = {},
-		tplDashboard = Handlebars.compile($('#tpl-dashboard').html());
+		tplDashboard = Handlebars.compile($('#tpl-dashboard').html()),
+		tplDashboardCustomers = Handlebars.compile($('#tpl-dashboard-customers').html());
 
 	pub.init = function() {
 		updateDashboard();
+		updateDashboardCustomers();
 	};
 
 	var updateDashboard = function() {
@@ -14,8 +16,19 @@ aptitud.dashboard = (function() {
 				employees: arrangeProjects(data),
 				monthNames: getMonthNames()
 			};
-			$('#Dashboard').html(tplDashboard(dashboardData));
+			$('#Employees').html(tplDashboard(dashboardData));
 			setTimeout(updateDashboard, 60000);
+		});
+	}
+
+	var updateDashboardCustomers = function() {
+		$.getJSON( "/customers", function( data ) {
+			var dashboardData = {
+				customers: data,
+				monthNames: getMonthNames()
+			};
+			$('#Customers').html(tplDashboardCustomers(dashboardData));
+			setTimeout(updateDashboardCustomer, 60000);
 		});
 	}
 

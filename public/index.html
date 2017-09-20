@@ -7,6 +7,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+	<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+	<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
 	<link rel="stylesheet" href="css/dashboard.css">
 
     <!-- Favicon -->
@@ -35,7 +37,46 @@
 </head>
 <body>
 
-	<div id="Dashboard"></div>
+	<div id="Employees"></div>
+	<div id="Customers"></div>
+
+	<div id="Menu" class="btn-group">
+		<a href="#Customers" class="btn btn-small"><i class="icon-building"></i></a>
+		<a href="#Employees" class="btn btn-small"><i class="icon-user"></i></a>
+	</div>
+
+	<script id="tpl-dashboard-customers" type="text/x-handlebars-template">
+		<table>
+		<thead>
+			<tr>
+				{{#each monthNames}}
+					<th>{{this}}</th>
+				{{/each}}
+			</tr>
+		</thead>
+		<tbody>
+		{{#each customers}}
+			<tr>
+				<th colspan="12"><a target="_blank" href="{{cardLink}}">{{customer}}</a></th>
+			</tr>
+			{{#each assignments}}
+				<tr>
+					{{#each assignmentPeriods}}
+						{{#if startMonthIndex}}<td colspan="{{startMonthIndex}}" class="offContract">&nbsp;</td>{{/if}}
+						<td colspan="{{assignmentSpan}}" class="{{#if alert}}needContract{{else}}onContract{{/if}}" title="{{../consultant}} {{startDate}}{{#if endDate}} &#8594; {{/if}}{{endDate}}">{{../consultant}}</td>
+						{{#if outSpan}}<td colspan="{{outSpan}}" class="offContract">&nbsp;</td>{{/if}}
+					{{/each}}
+				</tr>
+			{{/each}}
+			{{#unless assignments}}
+				<tr>
+					<td colspan="12" class="offContract">&nbsp;</td>
+				</tr>
+			{{/unless}}
+		{{/each}}
+		</tbody>
+		</table>
+	</script>
 
 	<script id="tpl-dashboard" type="text/x-handlebars-template">
 		<table>
@@ -55,7 +96,7 @@
 					{{#if project}}
 						<td 
 							colspan="{{span}}" 
-							class="onContract" 
+							class="{{#if project.alert}}needContract{{else}}onContract{{/if}}" 
 							title="{{project.company}} {{project.startDate}}{{#if project.endDate}} &#8594; {{/if}}{{project.endDate}}">
 								<a target="_blank" href="{{project.projectUrl}}">{{project.company}}</a>
 						</td>

@@ -1,5 +1,20 @@
+#Customers {
+	font-size: 14px;
+	padding-top: 10px;
+}
+
+#Employees,
+#Employees:target + #Customers {
+	display: none;
+}
+#Customers,
+#Employees:target,
+#Customers:target {
+	display: block;
+}
+
 body {
-	padding: 10px 10px 10px 0;
+	padding: 0 10px 10px 0;
 	background-color: #111;
 }
 
@@ -10,8 +25,18 @@ table {
 	border-spacing: 5px;
 }
 
-tbody th,
-thead tr th:first-child {
+#Menu {
+	position: fixed;
+	top: -4px;
+	right: 0;
+}
+#Menu .btn {
+	color: #333;
+	padding-top: 5px;
+}
+
+#Employees tbody th,
+#Employees thead tr th:first-child {
 	width: 170px;
 }
 td, th, a, a:visited {
@@ -20,6 +45,9 @@ td, th, a, a:visited {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	font-weight: normal;
+	color: #fff;
+}
+a:hover {
 	color: #fff;
 }
 td {
@@ -38,12 +66,25 @@ tbody th {
 	text-shadow: 0 1px rgba(0,0,0,1);
 }
 
-.onContract, a, a:visited {
+#Customers tbody th {
+	text-align: left;
+	font-weight: normal;
+	font-size: 1.5em;
+}
+
+.onContract, .onContract a, .onContract a:visited {
 	color: #4a6722;
 }
 
 .onContract {
 	background-color: #7a9752;
+}
+
+.needContract {
+	background-color: #a73a32;
+}
+.needContract, .needContract a, .needContract a:visited {
+	color: #670a02;
 }
 
 .offContract {

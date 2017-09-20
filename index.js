@@ -37,6 +37,33 @@ app.get("/consultants", function (request, response) {
     });
 });
 
+app.get("/customers", function (request, response) {
+    var getCustomers = function (callback) {
+        if (true || this.__cache_customers && Date.now() - this.__cacheDate_customers > 5 * 60 * 1000) {
+            delete this.__cache_customers;
+        }
+
+//        if (this.__cache_customers) {
+//            callback(this.__cache_customers);
+//        } else {
+            var self = this;
+
+            Trello.retrieveCustomers(function (customers) {
+                self.__cache_customers = customers;
+                self.__cacheDate_customers = Date.now();
+
+                callback(customers);
+            });
+//        }
+    };
+
+    getCustomers(function (customers) {
+        response.writeHead(200, {"Content-Type": "application/json; charset=utf-8", "Content-Encoding": "utf-8"})
+        response.end(JSON.stringify(customers));
+    });
+});
+
+
 app.listen(app.get('port'), function () {
     console.log("Node app is running at localhost:" + app.get('port'));
 });
