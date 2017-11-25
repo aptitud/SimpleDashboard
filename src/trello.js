@@ -91,10 +91,13 @@ module.exports.retrieveCustomers = function (retrieveCustomersCallback) {
 
 										if ((startDateYear < currentYear) || (startDateYear == currentYear && startDateMonth <= currentMonth)) {
 											assignmentPeriod.startMonthIndex = 0;
+										} else if (startDateYear > currentYear) {
+											assignmentPeriod.startMonthIndex = 12 - (currentMonth - startDateMonth);
 										} else {
 											assignmentPeriod.startMonthIndex = startDateMonth - currentMonth;
 										}
 										assignmentPeriod.assignmentSpan = (endDateMonth + 1) - currentMonth + (12 * (endDateYear - currentYear)) - assignmentPeriod.startMonthIndex;
+										if (assignmentPeriod.assignmentSpan > 12) assignmentPeriod.assignmentSpan = 12;
 										assignmentPeriod.outSpan = 12 - assignmentPeriod.assignmentSpan - assignmentPeriod.startMonthIndex;
 //										if (assignmentPeriod.outSpan < 0) assignmentPeriod.outSpan = 0;
 										assignmentPeriod.alert = (customerName === 'Behöver uppdrag');
