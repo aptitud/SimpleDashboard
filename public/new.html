@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Simple Dashboard - Aptitud</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+	<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+	<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+	<link rel="stylesheet" href="css/dashboard.css">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon/favicon.ico">
+    <link rel="icon" sizes="16x16 32x32 64x64" href="/img/favicon//favicon.ico">
+    <link rel="icon" type="image/png" sizes="196x196" href="/img/favicon/favicon-192.png">
+    <link rel="icon" type="image/png" sizes="160x160" href="/img/favicon/favicon-160.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon/favicon-96.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="/img/favicon/favicon-64.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16.png">
+    <link rel="apple-touch-icon" href="/img/favicon/favicon-57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/img/favicon/favicon-114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/img/favicon/favicon-72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/img/favicon/favicon-144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/img/favicon/favicon-60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/img/favicon/favicon-120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon/favicon-76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/img/favicon/favicon-152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon/favicon-180.png">
+    <meta name="msapplication-TileColor" content="#FFFFFF">
+    <meta name="msapplication-TileImage" content="/img/favicon/favicon-144.png">
+    <meta name="msapplication-config" content="/img/favicon/browserconfig.xml">
+    <!-- Favicon end -->
+
+</head>
+<body>
+
+	<div id="Employees"></div>
+	<div id="Customers"></div>
+
+	<div id="Menu" class="btn-group">
+		<a href="#Customers" class="btn btn-small"><i class="icon-building"></i></a>
+		<a href="#Employees" class="btn btn-small"><i class="icon-user"></i></a>
+	</div>
+
+	<script id="tpl-dashboard-customers" type="text/x-handlebars-template">
+		<table>
+		<thead>
+			<tr>
+				{{#each monthNames}}
+					<th>{{this}}</th>
+				{{/each}}
+			</tr>
+		</thead>
+		<tbody>
+		{{#each customers}}
+			<tr>
+				<th colspan="12"><a target="_blank" href="{{cardLink}}">{{customer}}</a></th>
+			</tr>
+			{{#each assignments}}
+				<tr>
+					{{#each assignmentPeriods}}
+						{{#if startMonthIndex}}<td colspan="{{startMonthIndex}}" class="offContract">&nbsp;</td>{{/if}}
+						<td colspan="{{assignmentSpan}}" class="{{#if alert}}needContract{{else}}onContract{{/if}}" title="{{../consultant}} {{startDate}}{{#if endDate}} &#8594; {{/if}}{{endDate}}">{{../consultant}}</td>
+						{{#if outSpan}}<td colspan="{{outSpan}}" class="offContract">&nbsp;</td>{{/if}}
+					{{/each}}
+				</tr>
+			{{/each}}
+			{{#unless assignments}}
+				<tr>
+					<td colspan="12" class="offContract">&nbsp;</td>
+				</tr>
+			{{/unless}}
+		{{/each}}
+		</tbody>
+		</table>
+	</script>
+
+	<script id="tpl-dashboard" type="text/x-handlebars-template">
+		<table>
+		<thead>
+			<tr>
+				<th></th>
+				{{#each monthNames}}
+					<th>{{this}}</th>
+				{{/each}}
+			</tr>
+		</thead>
+		<tbody>
+		{{#each employees}}
+			<tr>
+				<th>{{name}}</th>
+				{{#each assignmentPeriods}}
+					{{#if project}}
+						<td 
+							colspan="{{span}}" 
+							class="{{#if project.alert}}needContract{{else}}onContract{{/if}}" 
+							title="{{project.company}} {{project.startDate}}{{#if project.endDate}} &#8594; {{/if}}{{project.endDate}}">
+								<a target="_blank" href="{{project.projectUrl}}">{{project.company}}</a>
+						</td>
+					{{else}}
+						<td colspan="{{span}}" class="offContract">&nbsp;</td>
+					{{/if}}
+				{{/each}}
+				{{#unless assignmentPeriods}}
+					<td colspan="12" class="offContract">&nbsp;</td>
+				{{/unless}}
+			</tr>
+		{{/each}}
+		</tbody>
+		</table>
+	</script>
+
+	<script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+	<script src="js/handlebars-v2.0.0.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+	<script src="js/new-dashboard.js"></script>
+</body>
+</html>

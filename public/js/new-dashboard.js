@@ -7,11 +7,10 @@ aptitud.dashboard = (function() {
 
 	pub.init = function() {
 		updateDashboard();
-		// updateDashboardCustomers();
 	};
 
 	var updateDashboard = function() {
-		$.getJSON( "/assignments", function( data ) {
+		$.getJSON( "/consultants", function( data ) {
 			var dashboardData = {
 				employees: arrangeProjects(data),
 				monthNames: getMonthNames()
