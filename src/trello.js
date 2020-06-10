@@ -9,24 +9,8 @@ module.exports.getTrelloData = async () => {
 
 const parseData = (employeeCards, customerCards) => {
     let trelloData = {
-        employees: [
-            // id,
-            // name,
-            // assignments: [{
-            //     company,
-            //     dateStart,
-            //     dateEnd
-            // }]
-        ],
-        customers: [
-            // id,
-            // name,
-            // assignments: [{
-            //     employee,
-            //     dateStart,
-            //     dateEnd
-            // }]
-        ]
+        employees: [],
+        customers: []
     };
 
     customerCards.forEach((customerCard) => {
@@ -38,59 +22,32 @@ const parseData = (employeeCards, customerCards) => {
         const customerCardDescriptions = parseCardDescription(customerCard.desc);
 
         customerCard.idMembers.forEach((memberId) => {
-            const employee = employeeCards.find((employee) => employee.id === memberId);
-            const descriptionForEmployee = customerCardDescriptions[employee.name];
+            const employee = employeeCards.find((employee) => employee.idMembers[0] === memberId);
+            const descriptionForEmployee = (employee && customerCardDescriptions[employee.name]) || [];
 
-            if (!descriptionForEmployee || descriptionForEmployee.length === 0) {
-                customer.assignments.push({ employee: null, startDate: null, endDate: null });
-            } else {
-                descriptionForEmployee.forEach((description) => {
-                    customer.assignments.push({
-                        employee: {
-                            id: employee.id,
-                            name: employee.name,
-                            cardUrl: employee.shortUrl
-                        },
-                        startDate: description.startDate,
-                        endDate: description.endDate,
-                        alert: (customer.name === 'Behöver uppdrag')
-                    });
+            descriptionForEmployee.forEach((description) => {
+                customer.assignments.push({
+                    employee: {
+                        id: employee.idMembers[0],
+                        name: employee.name,
+                        cardUrl: employee.shortUrl
+                    },
+                    startDate: description.startDate,
+                    endDate: description.endDate,
+                    alert: (customer.name === 'Behöver uppdrag')
                 });
-            }
+            });
         });
+
+        customer.maxEndDate = maxEndDate(customer);
+        setMonthlyView(customer.assignments);
 
         trelloData.customers.push(customer);
     });
 
-    trelloData.customers.forEach((customer) => {
-        customer.maxEndDate = maxEndDate(customer.assignments);
-        var date = new Date();
-        var startMonth = date.getMonth();
-        var year = undefined;
-        customer.monthViewStartDate = new Date();
-        customer.monthViewEndDate = new Date();
-        customer.monthViewEndDate.setMonth(customer.monthViewEndDate.getMonth() + 11);
-        customer.monthViewAssignment = [];
-
-        for (var i = 0; i < 12; i++) {
-            var month = i + startMonth;
-            if (month > 11) {
-                if (!year) {
-                    year = date.getFullYear() + 1;
-                }
-                date.setFullYear(year, month - 12);
-            } else {
-                date.setMonth(month);
-            }
-            customer.monthViewAssignment.push(hasAssignment(customer, date));
-        }
-    });
-
-    trelloData.customers.sort(byNoAssignmentFirstAndEndDate);
-
     employeeCards.forEach((employeeCard) => {
         let employee = {
-            id: employeeCard.id,
+            id: employeeCard.idMembers[0],
             name: employeeCard.name,
             cardUrl: employeeCard.shortUrl,
             assignments: []
@@ -102,9 +59,8 @@ const parseData = (employeeCards, customerCards) => {
                     (assignment) => assignment.employee.id === employee.id
                 ).map((item) => ({
                     customer: {
-                        id: customer.id,
                         name: customer.name,
-                        cardUrl: customer.shortUrl
+                        cardUrl: customer.cardUrl
                     },
                     startDate: item.startDate,
                     endDate: item.endDate,
@@ -113,40 +69,49 @@ const parseData = (employeeCards, customerCards) => {
             );
         });
 
+        employee.maxEndDate = maxEndDate(employee);
+        setMonthlyView(employee.assignments);
+
         trelloData.employees.push(employee);
     });
+
+    trelloData.customers.sort(sortByNoAssignmentThenEndDate);
 
     return trelloData;
 }
 
-byNoAssignmentFirstAndEndDate = (c1, c2) => {
-    if (c1.status == 'Aktiv' && c2.status == 'Aktiv') {
-        var m1 = c1.maxEndDate;
-        var m2 = c2.maxEndDate;
+const setMonthlyView = (assignments) => {
+    assignments.forEach((assignment) => {
+        var monthlyDate = new Date();
+        var startMonth = monthlyDate.getMonth();
+        var year = undefined;
+        assignment.monthViewAssignment = [];
 
-        if (m1 && m2) {
-            return m1.getTime() - m2.getTime();
+        for (var i = 0; i < 12; i++) {
+            var month = i + startMonth;
+            if (month > 11) {
+                if (!year) {
+                    year = monthlyDate.getFullYear() + 1;
+                }
+                monthlyDate.setFullYear(year, month - 12);
+            } else {
+                monthlyDate.setMonth(month);
+            }
+            assignment.monthViewAssignment.push(getMonthView(assignment, monthlyDate));
         }
-        if (m1) {
-            return -1;
-        }
-        return 1;
+    });
+}
+
+const sortByNoAssignmentThenEndDate = (a, b) => {
+    if (a.maxEndDate) {
+        return b.maxEndDate ? a.maxEndDate.getTime() - b.maxEndDate.getTime() : -1;
     }
-    if (c1.status == 'Aktiv') {
-        if (c2.status == 'Tjänstledig') {
-            return -1;
-        }
-        return 1;
-    }
-    if (c1.status == 'Tjänstledig') {
-        return 1;
-    }
-    return -1;
+    return 1;
 };
 
-maxEndDate = (projects) => {
+const maxEndDate = (customer) => {
     var max;
-    projects.forEach(function (p) {
+    customer.assignments.forEach(function (p) {
         if (p.endDate) {
             if (!max) {
                 max = new Date(p.endDate);
@@ -158,49 +123,39 @@ maxEndDate = (projects) => {
     return max;
 };
 
-prefixZero = (num) => {
+const prefixZero = (num) => {
     if (num < 10) {
         return '0' + num;
     }
     return '' + num;
 };
 
-noAssignment = (date) => {
-    return {
-        hasAssignment: false,
-        yearMonth: date.getFullYear() + '-' + prefixZero(date.getMonth() + 1)
-    };
-};
+const getMonthViewAssignment = (monthlyDate) => ({
+    hasAssignment: false,
+    yearMonth: monthlyDate.getFullYear() + '-' + prefixZero(monthlyDate.getMonth() + 1)
+});
 
-hasAssignment = (customer, date) => {
-    if (!customer.assignments || customer.assignments.length == 0) {
-        return noAssignment(date);
+const getMonthView = (assignment, monthlyDate) => {
+    const monthView = getMonthViewAssignment(monthlyDate);
+
+    const start = assignment.startDate && new Date(assignment.startDate);
+    const end = assignment.endDate && new Date(assignment.endDate);
+
+    if (start && end) {
+        monthView.hasAssignment = monthlyDate.getTime() >= start.getTime() && monthlyDate.getTime() <= end.getTime();
+    } else if (start) {
+        monthView.hasAssignment = monthlyDate.getTime() >= start.getTime();
+    } else if (end) {
+        monthView.hasAssignment = monthlyDate.getTime() <= end.getTime();
+    } else {
+        // both start and end is null means forever
+        monthView.hasAssignment = true;
     }
-    var hasAssignment = noAssignment(date);
-    for (var i = 0; i < customer.assignments.length; i++) {
-        var assignment = customer.assignments[i];
-        var start = assignment.startDate && new Date(assignment.startDate);
-        var end = assignment.endDate && new Date(assignment.endDate);
-        if (start && end) {
-            hasAssignment.hasAssignment = date.getTime() >= start.getTime() && date.getTime() <= end.getTime();
-        } else if (start) {
-            hasAssignment.hasAssignment = date.getTime() >= start.getTime();
-        } else if (end) {
-            hasAssignment.hasAssignment = date.getTime() <= end.getTime();
-        } else {
-            // both start and end is null means forever
-            hasAssignment.hasAssignment = true;
-        }
-        if (hasAssignment.hasAssignment) {
-            hasAssignment.project = assignment;
-            hasAssignment.yearMonth = date.getFullYear() + '-' + prefixZero(date.getMonth() + 1);
-            break;
-        }
-    };
-    return hasAssignment;
+
+    return monthView;
 };
 
-parseCardDescription = (text) => {
+const parseCardDescription = (text) => {
     var elements = text.split('\n');
     var result = {};
 
