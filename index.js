@@ -3,11 +3,7 @@ const Trello = require("./src/trello.js"),
       app = express();
 
 app.set('port', (process.env.PORT || 5000));
-app.use(express.static(__dirname + '/public'));
-
-app.get('/', function (request, response) {
-    response.redirect('/public/index.html');
-});
+app.use(express.static(__dirname + '/client/public'));
 
 app.get('/assignments', async (request, response) => {
     const trelloData = await Trello.getTrelloData();

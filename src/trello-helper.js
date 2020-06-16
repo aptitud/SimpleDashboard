@@ -1,4 +1,4 @@
-var axios = require('axios');
+const axios = require('axios');
 
 const config = {
     KEY: 'f0bc8bfd0f2215a643266ab274148cff',
@@ -35,16 +35,4 @@ module.exports.getEmployeeCards = async () => {
     });
 
     return employeeCards;
-}
-
-module.exports.getStatusBoardMembers = async () => {
-    let statusBoardMembers;
-
-    await axios.get(urlOf(`boards/${config.STATUS_BOARD_ID}/members`)).then((result) => {
-        statusBoardMembers = result.data;
-    }).catch((error) => {
-        console.log(error);
-    });
-
-    return statusBoardMembers;
 }
