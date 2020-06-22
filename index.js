@@ -4,6 +4,7 @@ const Trello = require("./src/trello.js"),
 
 app.set('port', (process.env.PORT || 5000));
 app.use(express.static(__dirname + '/client/public'));
+app.use(cors());
 
 app.get('/assignments', async (request, response) => {
     const trelloData = await Trello.getTrelloData();
