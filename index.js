@@ -1,5 +1,6 @@
 const Trello = require("./src/trello.js"),
       express = require('express'),
+      cors = require('cors'),
       app = express();
 
 app.set('port', (process.env.PORT || 5000));

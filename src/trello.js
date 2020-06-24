@@ -103,6 +103,12 @@ const setMonthlyView = (assignments) => {
 }
 
 const sortByNoAssignmentThenEndDate = (a, b) => {
+    if(a.name === 'Behöver uppdrag') {
+        return -1;
+    }
+    if(b.name === 'Behöver uppdrag') {
+        return 1;
+    }
     if (a.maxEndDate) {
         return b.maxEndDate ? a.maxEndDate.getTime() - b.maxEndDate.getTime() : -1;
     }
