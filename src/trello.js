@@ -115,8 +115,15 @@ const setEmployeeAssignmentOverview = (assignments) => {
         if (preAssignmentCols - filledCols > 0) {
             arrangedAssignments.push({
                 colSpan: preAssignmentCols - filledCols,
-                alert: false
+                alert: false,
+                className: 'offContract'
             });
+        }
+
+        if(assignment.customer !== null && !assignment.alert) {
+            assignment.className = 'onContract';
+        } else if(assignment.customer !== null && assignment.alert){
+            assignment.className = 'needContract';
         }
 
         arrangedAssignments.push(assignment);
@@ -127,7 +134,8 @@ const setEmployeeAssignmentOverview = (assignments) => {
     if (filledCols > 0 && filledCols < 12) {
         arrangedAssignments.push({
             colSpan: 12 - filledCols,
-            alert: false
+            alert: false,
+            className: 'offContract'
         });
     }
 
