@@ -69,8 +69,9 @@ const parseData = (employeeCards, customerCards) => {
             );
         });
 
-        employee.maxEndDate = maxEndDate(employee);
-        setMonthlyView(employee.assignments);
+        employee.assignments.sort(sortByStartDate);
+
+        employee.assignments = setEmployeeAssignmentOverview(employee.assignments);
 
         trelloData.employees.push(employee);
     });
@@ -80,15 +81,90 @@ const parseData = (employeeCards, customerCards) => {
     return trelloData;
 }
 
+const setEmployeeAssignmentOverview = (assignments) => {
+    const arrangedAssignments = [];
+    let filledCols = 0;
+
+    assignments.forEach((assignment, index) => {
+        const monthlyDate = new Date(),
+            startMonth = monthlyDate.getMonth();
+
+        let year = undefined;
+        assignment.colSpan = 0;
+
+        let preAssignmentCols = 0;
+
+        for (let i = 0; i < 12; i++) {
+            let month = i + startMonth;
+            if (month > 11) {
+                if (!year) {
+                    year = monthlyDate.getFullYear() + 1;
+                }
+                monthlyDate.setFullYear(year, month - 12);
+            } else {
+                monthlyDate.setMonth(month);
+            }
+
+            if (getEmployeeAssignmentColSpan(assignment, monthlyDate)) {
+                assignment.colSpan++;
+            } else if (assignment.colSpan === 0) {
+                preAssignmentCols++;
+            }
+        }
+
+        if (preAssignmentCols - filledCols > 0) {
+            arrangedAssignments.push({
+                colSpan: preAssignmentCols - filledCols,
+                alert: false
+            });
+        }
+
+        arrangedAssignments.push(assignment);
+
+        filledCols = assignment.colSpan + preAssignmentCols;
+    });
+
+    if (filledCols > 0 && filledCols < 12) {
+        arrangedAssignments.push({
+            colSpan: 12 - filledCols,
+            alert: false
+        });
+    }
+
+    return arrangedAssignments;
+}
+
+const getEmployeeAssignmentColSpan = (assignment, monthlyDate) => {
+    let hasAssignment = false;
+
+    const start = assignment.startDate && new Date(assignment.startDate);
+    const end = assignment.endDate && new Date(assignment.endDate);
+
+    if (start && end) {
+        hasAssignment = monthlyDate.getTime() >= start.getTime() && monthlyDate.getTime() <= end.getTime();
+    } else if (start) {
+        hasAssignment = monthlyDate.getTime() >= start.getTime();
+    } else if (end) {
+        hasAssignment = monthlyDate.getTime() <= end.getTime();
+    } else {
+        // both start and end is null means forever
+        hasAssignment = true;
+    }
+
+    return hasAssignment;
+};
+
 const setMonthlyView = (assignments) => {
     assignments.forEach((assignment) => {
-        var monthlyDate = new Date();
-        var startMonth = monthlyDate.getMonth();
-        var year = undefined;
+        const monthlyDate = new Date(),
+            startMonth = monthlyDate.getMonth();
+
+        let year = undefined;
+
         assignment.monthViewAssignment = [];
 
         for (var i = 0; i < 12; i++) {
-            var month = i + startMonth;
+            let month = i + startMonth;
             if (month > 11) {
                 if (!year) {
                     year = monthlyDate.getFullYear() + 1;
@@ -102,11 +178,35 @@ const setMonthlyView = (assignments) => {
     });
 }
 
+const getMonthView = (assignment, monthlyDate) => {
+    const monthView = { hasAssignment: false };
+
+    const start = assignment.startDate && new Date(assignment.startDate);
+    const end = assignment.endDate && new Date(assignment.endDate);
+
+    if (start && end) {
+        monthView.hasAssignment = monthlyDate.getTime() >= start.getTime() && monthlyDate.getTime() <= end.getTime();
+    } else if (start) {
+        monthView.hasAssignment = monthlyDate.getTime() >= start.getTime();
+    } else if (end) {
+        monthView.hasAssignment = monthlyDate.getTime() <= end.getTime();
+    } else {
+        // both start and end is null means forever
+        monthView.hasAssignment = true;
+    }
+
+    return monthView;
+};
+
+const sortByStartDate = (a, b) => {
+    return new Date(a.startDate) > new Date(b.startDate) ? 1 : -1;
+};
+
 const sortByNoAssignmentThenEndDate = (a, b) => {
-    if(a.name === 'Behöver uppdrag') {
+    if (a.name === 'Behöver uppdrag') {
         return -1;
     }
-    if(b.name === 'Behöver uppdrag') {
+    if (b.name === 'Behöver uppdrag') {
         return 1;
     }
     if (a.maxEndDate) {
@@ -127,38 +227,6 @@ const maxEndDate = (customer) => {
         }
     });
     return max;
-};
-
-const prefixZero = (num) => {
-    if (num < 10) {
-        return '0' + num;
-    }
-    return '' + num;
-};
-
-const getMonthViewAssignment = (monthlyDate) => ({
-    hasAssignment: false,
-    yearMonth: monthlyDate.getFullYear() + '-' + prefixZero(monthlyDate.getMonth() + 1)
-});
-
-const getMonthView = (assignment, monthlyDate) => {
-    const monthView = getMonthViewAssignment(monthlyDate);
-
-    const start = assignment.startDate && new Date(assignment.startDate);
-    const end = assignment.endDate && new Date(assignment.endDate);
-
-    if (start && end) {
-        monthView.hasAssignment = monthlyDate.getTime() >= start.getTime() && monthlyDate.getTime() <= end.getTime();
-    } else if (start) {
-        monthView.hasAssignment = monthlyDate.getTime() >= start.getTime();
-    } else if (end) {
-        monthView.hasAssignment = monthlyDate.getTime() <= end.getTime();
-    } else {
-        // both start and end is null means forever
-        monthView.hasAssignment = true;
-    }
-
-    return monthView;
 };
 
 const parseCardDescription = (text) => {
