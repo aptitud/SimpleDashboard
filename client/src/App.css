@@ -1,12 +1,12 @@
 body {
-	padding: 35px 10px 10px 0;
+	padding: 15px 10px 10px 0;
 	background-color: #111;
 }
 
 #Menu {
 	position: fixed;
 	top: -4px;
-	right: 0;
+	left: 15px;
 }
 #Menu .btn {
 	color: #333;
@@ -50,7 +50,7 @@ thead th:not(:first-child) {
 }
 
 th:first-child {
-  width: 170px;
+  width: 150px;
 }
 tbody th {
 	text-align: right;
