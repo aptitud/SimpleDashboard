@@ -40,7 +40,7 @@ const parseData = (employeeCards, customerCards) => {
         });
 
         customer.maxEndDate = maxEndDate(customer);
-        setMonthlyView(customer.assignments);
+        setCustomerAssignmentOverview(customer.assignments);
 
         trelloData.customers.push(customer);
     });
@@ -86,13 +86,13 @@ const setEmployeeAssignmentOverview = (assignments) => {
     let filledCols = 0;
 
     assignments.forEach((assignment, index) => {
-        const monthlyDate = new Date(),
+        const monthlyDate = new Date(new Date().setHours(0, 0, 0, 0)),
             startMonth = monthlyDate.getMonth();
 
         let year = undefined;
         assignment.colSpan = 0;
 
-        let preAssignmentCols = 0;
+        let preAssignmentColSpan = 0;
 
         for (let i = 0; i < 12; i++) {
             let month = i + startMonth;
@@ -105,44 +105,91 @@ const setEmployeeAssignmentOverview = (assignments) => {
                 monthlyDate.setMonth(month);
             }
 
-            if (getEmployeeAssignmentColSpan(assignment, monthlyDate)) {
+            if (hasAssignmentPerMonth(assignment, monthlyDate)) {
                 assignment.colSpan++;
             } else if (assignment.colSpan === 0) {
-                preAssignmentCols++;
+                preAssignmentColSpan++;
             }
         }
 
-        if (preAssignmentCols - filledCols > 0) {
+        if (preAssignmentColSpan - filledCols > 0) {
             arrangedAssignments.push({
-                colSpan: preAssignmentCols - filledCols,
-                alert: false,
-                className: 'offContract'
+                colSpan: preAssignmentColSpan - filledCols,
+                alert: false
             });
         }
 
-        if(assignment.customer !== null && !assignment.alert) {
-            assignment.className = 'onContract';
-        } else if(assignment.customer !== null && assignment.alert){
-            assignment.className = 'needContract';
+        if (assignment.colSpan > 0) {
+            arrangedAssignments.push(assignment);
         }
 
-        arrangedAssignments.push(assignment);
-
-        filledCols = assignment.colSpan + preAssignmentCols;
+        filledCols = assignment.colSpan + preAssignmentColSpan;
     });
 
     if (filledCols > 0 && filledCols < 12) {
         arrangedAssignments.push({
             colSpan: 12 - filledCols,
-            alert: false,
-            className: 'offContract'
+            alert: false
         });
     }
 
     return arrangedAssignments;
 }
 
-const getEmployeeAssignmentColSpan = (assignment, monthlyDate) => {
+const setCustomerAssignmentOverview = (assignments) => {
+    assignments.forEach((assignment) => {
+        const monthlyDate = new Date(new Date().setHours(0, 0, 0, 0)),
+            startMonth = monthlyDate.getMonth();
+
+        let year = undefined,
+            assignmentColSpan = 0,
+            preAssignmentColSpan = 0;
+
+        assignment.overview = [];
+
+        for (let i = 0; i < 12; i++) {
+            let month = i + startMonth;
+            if (month > 11) {
+                if (!year) {
+                    year = monthlyDate.getFullYear() + 1;
+                }
+                monthlyDate.setFullYear(year, month - 12);
+            } else {
+                monthlyDate.setMonth(month);
+            }
+
+            if (hasAssignmentPerMonth(assignment, monthlyDate)) {
+                assignmentColSpan++;
+            } else if (assignmentColSpan === 0) {
+                preAssignmentColSpan++;
+            }
+        }
+
+        if (preAssignmentColSpan > 0 && preAssignmentColSpan !== 12) {
+            assignment.overview.push({
+                colSpan: preAssignmentColSpan,
+                hasAssignment: false
+            });
+        }
+
+        if (assignmentColSpan > 0) {
+            assignment.overview.push({
+                colSpan: assignmentColSpan,
+                hasAssignment: true
+            });
+        }
+
+        let filledCols = preAssignmentColSpan + assignmentColSpan;
+        if (filledCols < 12) {
+            assignment.overview.push({
+                colSpan: 12 - filledCols,
+                hasAssignment: false
+            });
+        }
+    });
+}
+
+const hasAssignmentPerMonth = (assignment, monthlyDate) => {
     let hasAssignment = false;
 
     const start = assignment.startDate && new Date(assignment.startDate);
@@ -160,50 +207,6 @@ const getEmployeeAssignmentColSpan = (assignment, monthlyDate) => {
     }
 
     return hasAssignment;
-};
-
-const setMonthlyView = (assignments) => {
-    assignments.forEach((assignment) => {
-        const monthlyDate = new Date(),
-            startMonth = monthlyDate.getMonth();
-
-        let year = undefined;
-
-        assignment.monthViewAssignment = [];
-
-        for (var i = 0; i < 12; i++) {
-            let month = i + startMonth;
-            if (month > 11) {
-                if (!year) {
-                    year = monthlyDate.getFullYear() + 1;
-                }
-                monthlyDate.setFullYear(year, month - 12);
-            } else {
-                monthlyDate.setMonth(month);
-            }
-            assignment.monthViewAssignment.push(getMonthView(assignment, monthlyDate));
-        }
-    });
-}
-
-const getMonthView = (assignment, monthlyDate) => {
-    const monthView = { hasAssignment: false };
-
-    const start = assignment.startDate && new Date(assignment.startDate);
-    const end = assignment.endDate && new Date(assignment.endDate);
-
-    if (start && end) {
-        monthView.hasAssignment = monthlyDate.getTime() >= start.getTime() && monthlyDate.getTime() <= end.getTime();
-    } else if (start) {
-        monthView.hasAssignment = monthlyDate.getTime() >= start.getTime();
-    } else if (end) {
-        monthView.hasAssignment = monthlyDate.getTime() <= end.getTime();
-    } else {
-        // both start and end is null means forever
-        monthView.hasAssignment = true;
-    }
-
-    return monthView;
 };
 
 const sortByStartDate = (a, b) => {
