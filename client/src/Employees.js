@@ -25,6 +25,9 @@ export default class Employees extends React.Component {
             {this.state.months.map(month => <th key={month} scope="col">{month}</th>)}
           </tr>
         </thead>
+        <tr>
+          <td className="tableRowSeparator" colSpan="13"></td>
+        </tr>
         {this.props.data.map(employee => <EmployeeAssignments key={employee.name} employee={employee} />)}
       </table>
     );

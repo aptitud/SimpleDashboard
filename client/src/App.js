@@ -1,9 +1,11 @@
 import React from 'react';
-// import logo from './logo.svg';
 import Customers from './Customers';
 import Employees from './Employees';
 import axios from 'axios';
 import './App.css';
+
+import { faBuilding, faUser, faSync } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default class App extends React.Component {
   state = {
@@ -22,6 +24,13 @@ export default class App extends React.Component {
     });
   }
 
+  resetCache() {
+    axios.get('http://localhost:5000/resetcache').then((result) => {
+      console.log('cache reset');
+      window.location.reload();
+    });
+  }
+
   render() {
     const activeView = () => {
       switch (this.state.activeViewId) {
@@ -37,8 +46,9 @@ export default class App extends React.Component {
     return (
       <div className="App">
         <div id="Menu" className="btn-group">
-          <a href="#" onClick={() => this.setActiveViewId('customers')} className="btn"><i className="icon-building"></i></a>
-          <a href="#" onClick={() => this.setActiveViewId('employees')} className="btn"><i className="icon-user"></i></a>
+          <a href="#" onClick={() => this.setActiveViewId('customers')} className="btn" title="customer dashboard"><FontAwesomeIcon icon={faBuilding} /></a>
+          <a href="#" onClick={() => this.setActiveViewId('employees')} className="btn" title="employee dashboard"><FontAwesomeIcon icon={faUser} /></a>
+          <a href="#" onClick={this.resetCache} className="btn" title="reset cache"><FontAwesomeIcon icon={faSync} /></a>
         </div>
 
         {activeView()}

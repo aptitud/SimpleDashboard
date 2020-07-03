@@ -6,7 +6,7 @@ export default class CustomerAssignments extends React.Component {
     return (
       <tbody>
         <tr>
-          <td className="customerSeparator" colSpan="13"></td>
+          <td className="tableRowSeparator" colSpan="13"></td>
         </tr>
         {this.props.customer.assignments && this.props.customer.assignments.filter((assignment) => assignment.overview.length).map((assignment, index) =>
             <tr key={assignment.employee.name}>
