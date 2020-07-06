@@ -28,7 +28,6 @@ export default class App extends React.Component {
 
   resetCache() {
     axios.get(`${BASE_URL}/resetcache`).then((result) => {
-      console.log('cache reset');
       window.location.reload();
     });
   }
@@ -48,9 +47,9 @@ export default class App extends React.Component {
     return (
       <div className="App">
         <div id="Menu" className="btn-group">
-          <a href="#" onClick={() => this.setActiveViewId('customers')} className="btn" title="customer dashboard"><FontAwesomeIcon icon={faBuilding} /></a>
-          <a href="#" onClick={() => this.setActiveViewId('employees')} className="btn" title="employee dashboard"><FontAwesomeIcon icon={faUser} /></a>
-          <a href="#" onClick={this.resetCache} className="btn" title="reset cache"><FontAwesomeIcon icon={faSync} /></a>
+          <span onClick={() => this.setActiveViewId('customers')} className="btn" title="customer dashboard"><FontAwesomeIcon icon={faBuilding} /></span>
+          <span onClick={() => this.setActiveViewId('employees')} className="btn" title="employee dashboard"><FontAwesomeIcon icon={faUser} /></span>
+          <span onClick={this.resetCache} className="btn" title="reset cache"><FontAwesomeIcon icon={faSync} /></span>
         </div>
 
         {activeView()}
