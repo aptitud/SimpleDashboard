@@ -7,6 +7,8 @@ import './App.css';
 import { faBuilding, faUser, faSync } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
+const BASE_URL = process.env.NODE_ENV !== 'production' ? 'http://localhost:5000' : '';
+
 export default class App extends React.Component {
   state = {
     employees: [],
@@ -15,17 +17,17 @@ export default class App extends React.Component {
   }
 
   setActiveViewId(activeViewId) {
-    this.setState({activeViewId});
+    this.setState({ activeViewId });
   }
 
   componentDidMount() {
-    axios.get('/assignments').then((result) => {
+    axios.get(`${BASE_URL}/assignments`).then((result) => {
       this.setState(result.data);
     });
   }
 
   resetCache() {
-    axios.get('/resetcache').then((result) => {
+    axios.get(`${BASE_URL}/resetcache`).then((result) => {
       console.log('cache reset');
       window.location.reload();
     });
