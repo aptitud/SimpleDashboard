@@ -4,8 +4,8 @@
   "description": "Simple dashboard",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js" ,
-    "postinstall": "cd client && npm run build" 
+    "start": "node index.js",
+    "postinstall": "cd client && npm run build"
   },
   "dependencies": {
     "axios": "^0.19.2",
