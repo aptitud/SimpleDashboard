@@ -19,13 +19,13 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
-    axios.get('http://localhost:5000/assignments').then((result) => {
+    axios.get('/assignments').then((result) => {
       this.setState(result.data);
     });
   }
 
   resetCache() {
-    axios.get('http://localhost:5000/resetcache').then((result) => {
+    axios.get('/resetcache').then((result) => {
       console.log('cache reset');
       window.location.reload();
     });
