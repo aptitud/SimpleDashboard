@@ -5,7 +5,7 @@ import MapContainer from './Map';
 import axios from 'axios';
 import './App.css';
 
-import { faBuilding, faUser, faSync, faMapPin } from "@fortawesome/free-solid-svg-icons";
+import { faBuilding, faUser, faSync, faMapMarkedAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const BASE_URL = process.env.NODE_ENV !== 'production' ? 'http://localhost:5000' : '';
@@ -53,7 +53,7 @@ export default class App extends React.Component {
           <span onClick={() => this.setActiveViewId('customers')} className="btn" title="customer dashboard"><FontAwesomeIcon icon={faBuilding} /></span>
           <span onClick={() => this.setActiveViewId('employees')} className="btn" title="employee dashboard"><FontAwesomeIcon icon={faUser} /></span>
           <span onClick={this.resetCache} className="btn" title="reset cache"><FontAwesomeIcon icon={faSync} /></span>
-          <span onClick={() => this.setActiveViewId('map')} className="btn" title="map"><FontAwesomeIcon icon={faMapPin} /></span>
+          <span onClick={() => this.setActiveViewId('map')} className="btn" title="map"><FontAwesomeIcon icon={faMapMarkedAlt} /></span>
         </div>
 
         {activeView()}
