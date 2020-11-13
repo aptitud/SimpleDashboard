@@ -1,5 +1,5 @@
 body {
-	padding: 15px 10px 10px 0;
+	padding: 30px 10px 10px 0;
 	background-color: #111;
 }
 
@@ -149,4 +149,10 @@ tbody th {
 .btn-group > .btn-group:not(:first-child) > .btn {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
+}
+
+.map-container {
+  position: relative;
+  height: calc(100vh - 80px);
+  margin: 20px 10px 0 20px;
 }
