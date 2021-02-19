@@ -12,6 +12,7 @@ export class MapContainer extends React.Component {
 
     this.state = {
       employees: [
+              {name: 'Butiken', position: {lat:59.325065, lng: 18.067978}, icon: '/favicon-57.png'},
               {name: 'Anders Ljusberg', position: {lat: 59.298866, lng: 17.968189}},
               {name: 'Anders Löwenborg', position: {lat: 59.318032, lng: 18.464043}},
               {name: 'Arpine Avakian', position: {lat: 59.215458, lng: 17.959254}},
@@ -45,7 +46,7 @@ export class MapContainer extends React.Component {
   displayMarkers = () => {
     return this.state.employees.map((employee, index) => {
       return <Marker key={index} id={index} position={employee.position}
-      title={employee.name}
+      title={employee.name} icon={employee.icon}
      onClick={() => console.log("You clicked me!")} />
     })
   }
