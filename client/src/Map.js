@@ -43,6 +43,9 @@ export class MapContainer extends React.Component {
     }
   };
 
+  getPositionFromAddress = () => {
+  }
+
   displayMarkers = () => {
     return this.state.employees.map((employee, index) => {
       return <Marker key={index} id={index} position={employee.position}

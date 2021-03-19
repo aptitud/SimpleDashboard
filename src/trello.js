@@ -1,13 +1,14 @@
 const trelloHelper = require('./trello-helper.js');
+const mapsHelper = require('./maps-helper.js');
 
 module.exports.getTrelloData = async () => {
     const employeeCards = await trelloHelper.getEmployeeCards(),
         customerCards = await trelloHelper.getCustomerCards();
 
-    return parseData(employeeCards, customerCards);
+    return await parseData(employeeCards, customerCards);
 }
 
-const parseData = (employeeCards, customerCards) => {
+const parseData = async (employeeCards, customerCards) => {
     let trelloData = {
         employees: [],
         customers: []
@@ -19,10 +20,11 @@ const parseData = (employeeCards, customerCards) => {
             cardUrl: customerCard.shortUrl,
             assignments: []
         };
-        const customerCardDescriptions = parseCardDescription(customerCard.desc);
+        const customerCardDescriptions = parseCustomerCardDescription(customerCard.desc);
 
         customerCard.idMembers.forEach((memberId) => {
             const employee = employeeCards.find((employee) => employee.idMembers[0] === memberId);
+  
             const descriptionForEmployee = (employee && customerCardDescriptions[employee.name]) || [];
 
             descriptionForEmployee.forEach((description) => {
@@ -50,7 +52,8 @@ const parseData = (employeeCards, customerCards) => {
             id: employeeCard.idMembers[0],
             name: employeeCard.name,
             cardUrl: employeeCard.shortUrl,
-            assignments: []
+            assignments: [],
+            address: getEmployeeAddress(employeeCard)
         };
 
         trelloData.customers.forEach((customer) => {
@@ -78,6 +81,8 @@ const parseData = (employeeCards, customerCards) => {
 
     trelloData.customers.sort(sortByNoAssignmentThenEndDate);
 
+    trelloData.employees = await mapsHelper.getPositionsFromAddresses(trelloData.employees);
+    
     return trelloData;
 }
 
@@ -240,7 +245,7 @@ const maxEndDate = (customer) => {
     return max;
 };
 
-const parseCardDescription = (text) => {
+const parseCustomerCardDescription = (text) => {
     var elements = text.split('\n');
     var result = {};
 
@@ -271,4 +276,17 @@ const parseCardDescription = (text) => {
     })
 
     return result;
+};
+
+const getEmployeeAddress = (employeeCard) => {
+    var elements = employeeCard.desc.split('\n');
+    let address;
+
+    elements.forEach((e) => {
+        if (e.indexOf('Adress: ') === 0) {
+            address = e.substring(8).trim();
+            return;
+        }
+    })
+    return address;
 };

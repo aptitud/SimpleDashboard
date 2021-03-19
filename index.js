@@ -1,4 +1,5 @@
 const Trello = require("./src/trello.js"),
+    mapsHelper = require("./src/maps-helper.js"),
     express = require('express'),
     cors = require('cors'),
     path = require('path'),
@@ -19,6 +20,8 @@ app.use(cors());
 app.get('/assignments', async (request, response) => {
     if (!trelloDataTimeStamp || (Date.now() > trelloDataTimeStamp + 300000)) {
         trelloData = await Trello.getTrelloData();
+        await mapsHelper.getPositionsFromAddresses(trelloData);
+        console.log(trelloData.employees);
         trelloDataTimeStamp = Date.now();
     }
     response.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Content-Encoding': 'utf-8' })
