@@ -41,7 +41,7 @@ export default class App extends React.Component {
         case 'employees':
           return <Employees data={this.state.employees} />
         case 'map':
-          return <div className="map-container"><MapContainer /></div>
+          return <div className="map-container"><MapContainer employees={this.state.employees} /></div>
         default:
           return null
       }
