@@ -9,6 +9,7 @@ Build and run
 
 Heroku
 ======
+Aptitud
 
 SimpleDashboard is hosted on [Heroku](http://aptituddashboard.herokuapp.com/).
 
